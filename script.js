@@ -1,4 +1,66 @@
 const model = (function () {
+
+	let Expense = function(id,description,value){
+		this.id = id;
+		this.description = description;
+		this.value = value;
+	}
+
+	let Income = function(id,description,value){
+		this.id = id;
+		this.description = description;
+		this.value = value;
+	}
+
+	let data = {
+		allItems:{
+			exp: [],
+			inc: []
+		},
+		totals: {
+			inc: 0,
+			exp: 0,
+			total:0
+		},
+		budget: 0,
+		percentage: -1
+		
+		
+	}
+
+	const iphone = new Expense('iphone X',322);
+
+	console.log(iphone);
+
+
+	return {
+		addItem: function(type,des,val){
+			let newItem;
+			//Create new ID
+			
+			//Create conditional that seperates by type
+			if(type == inc){
+				newItem = new Income(des,val);
+			}else if(type == exp){
+				newItem = new Expense(des,val)
+			}
+			//Create new object either inc or exp based on type
+
+			//store object in data allItems either inc or exp
+
+			}
+		},
+
+		data: data,
+		
+	}
+
+})();
+
+
+
+const view = (function (mod) {
+
 	DOMinputs = {
 		totalMoney:document.querySelector('#total_money'),
 		date: document.querySelector('#budget-title-month'),
@@ -9,37 +71,6 @@ const model = (function () {
 		input: document.querySelector('.input_value'),
 		calcBtn: document.querySelector('button')
 	}
-
-	data = {
-		total: 0,
-		inc: 0,
-		exp: 0
-	}
-
-	class Item {
-		constructor(desc,val){
-			this.desc = desc;
-			this.val = val 
-		}
-	}
-
-
-	const iphone = new Item('iphone X',322);
-
-	console.log(iphone);
-
-
-	return {
-		DOMinputs: DOMinputs,
-		data: data,
-		item:Item
-	}
-
-})();
-
-
-
-const view = (function (data, DOM) {
 
 	function month() {
 		var month = new Array();
@@ -58,58 +89,66 @@ const view = (function (data, DOM) {
 	  
 		var d = new Date();
 		var n = month[d.getMonth()];
-		DOM.date.innerHTML = n;
+		this.DOMinputs.date.innerHTML = n;
+		
 	}
 
 	month();
 
-	const update = () => {
-		DOM.totalMoney.innerHTML = data.total;
-		DOM.income_display.innerHTML = data.inc;
-		DOM.expense_display.innerHTML = data.exp;
-		DOM.totalMoney.innerHTML = data.total;
-		}
+	
 	
 	return {
-		display:update
-	}
-
-})(model.data, model.DOMinputs);
-
-
-
-
-
-
-
-
-const controller = (function (btn, input, data, type,display) {
-	function calc() {
-		if (type.value == "+") {
-			data.inc = data.inc + parseInt(input.value);
-			data.total = data.total + parseInt(input.value);
-		} else if (type.value == "-") {
-			data.exp = data.exp - parseInt(input.value);
-			data.total = data.total - parseInt(input.value);
-		}
-
-		console.log(data.inc)
-		console.log(data.exp)
+		DOMinputs: DOMinputs,
 		
 	}
 
-	function createItem(item){
-		item 
+})();
+
+
+
+
+
+
+
+const controller = (function (mod,view) {
+	function calc() {
+		if (view.DOMinputs.type.value == "+") {
+			model.data.totals.inc = model.data.totals.inc + parseInt(view.DOMinputs.input.value);
+			model.data.totals.total = model.data.totals.total + parseInt(view.DOMinputs.input.value);
+		} else if (view.DOMinputs.type.value == "-") {
+			view.data.totals.total = view.data.totals.exp - parseInt(view.DOMinputs.input.value);
+			view.data.totals,total = view.data.totals.total - parseInt(view.DOMinputs.input.value);
+		}
+model.data.totals.total
+		console.log(model.data.totals.inc)
+		console.log(model.data.totals.exp)
+		
+	}
+
+	const update = () => {
+		DOMinputs.income_display.innerHTML = mod.data.totals.inc;
+		DOMinputs.expense_display.innerHTML = mod.data.totals.exp;
+		DOMinputs.totalMoney.innerHTML = mod.data.totals.total;
+		}
+
+	let ctrlAddItem = function(){
+		let input, newItem;
+
+		// 1. Get the field input data
+		
+		// 2 Store inputs in item object
+
+		// 3. Save item in either inc or exp array in data
 	}
 
 
-	btn.addEventListener('click', function () {
+	view.DOMinputs.calcBtn.addEventListener('click', function () {
 		calc();
-		createItem(model.item);
-		display();
+		update();
 		
 		
 	})
 
-})(model.DOMinputs.calcBtn, model.DOMinputs.input, model.data, model.DOMinputs.type,view.display);
+
+})(model,view);
 
