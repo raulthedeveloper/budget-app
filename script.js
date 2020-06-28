@@ -1,59 +1,57 @@
 const model = (function () {
 
-	let Expense = function(id,description,value){
+	let Expense = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value;
 	}
 
-	let Income = function(id,description,value){
+	let Income = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value;
 	}
 
 	let data = {
-		allItems:{
+		allItems: {
 			exp: [],
 			inc: []
 		},
 		totals: {
 			inc: 0,
 			exp: 0,
-			total:0
+			total: 0
 		},
 		budget: 0,
 		percentage: -1
-		
-		
+
+
 	}
-
-	const iphone = new Expense('iphone X',322);
-
-	console.log(iphone);
 
 
 	return {
-		addItem: function(type,des,val){
-			let newItem;
+		addItem: function (type, des, val) {
+			let newItem, ID;
 			//Create new ID
-			
+			ID = data.allItems[type][data.allItems[type].length - 1] + 1;
+
 			//Create conditional that seperates by type
-			if(type == inc){
-				newItem = new Income(des,val);
-			}else if(type == exp){
-				newItem = new Expense(des,val)
+			if (type == inc) {
+				newItem = new Income(ID, des, val);
+			} else if (type == exp) {
+				newItem = new Expense(ID, des, val)
 			}
-			//Create new object either inc or exp based on type
 
 			//store object in data allItems either inc or exp
+			data.allItems[type].push(newItem);
+			return newItem;
 
-			}
 		},
 
-		data: data,
-		
+		data:data
 	}
+
+	
 
 })();
 
@@ -61,15 +59,19 @@ const model = (function () {
 
 const view = (function (mod) {
 
-	DOMinputs = {
-		totalMoney:document.querySelector('#total_money'),
+	const DOMstrings = {
+		inputType: '#add_type',
+		inputDescription: '.input_description',
+		inputValue: '.input_value',
+		inputBtn: '.btn'
+	}
+
+	const DOMinputs = {
+		totalMoney: document.querySelector('#total_money'),
 		date: document.querySelector('#budget-title-month'),
 		income_display: document.querySelector('#income_display'),
 		expense_display: document.querySelector('#expense_display'),
-		type: document.querySelector('#add_type'),
-		description: document.querySelector('#input_description'),
-		input: document.querySelector('.input_value'),
-		calcBtn: document.querySelector('button')
+
 	}
 
 	function month() {
@@ -86,20 +88,29 @@ const view = (function (mod) {
 		month[9] = "October";
 		month[10] = "November";
 		month[11] = "December";
-	  
+
 		var d = new Date();
 		var n = month[d.getMonth()];
-		this.DOMinputs.date.innerHTML = n;
-		
+		DOMinputs.date.innerHTML = n;
+
 	}
 
 	month();
 
-	
-	
+
+
 	return {
-		DOMinputs: DOMinputs,
-		
+		getInput: function () {
+			return {
+				type: document.querySelector(DOMstrings.inputType).value,
+				description: document.querySelector(DOMstrings.inputDescription).value,
+				input: document.querySelector(DOMstrings.inputValue).value
+			}
+		},
+		getDOMstring() {
+			return DOMstrings;
+		}
+
 	}
 
 })();
@@ -110,45 +121,48 @@ const view = (function (mod) {
 
 
 
-const controller = (function (mod,view) {
-	function calc() {
-		if (view.DOMinputs.type.value == "+") {
-			model.data.totals.inc = model.data.totals.inc + parseInt(view.DOMinputs.input.value);
-			model.data.totals.total = model.data.totals.total + parseInt(view.DOMinputs.input.value);
-		} else if (view.DOMinputs.type.value == "-") {
-			view.data.totals.total = view.data.totals.exp - parseInt(view.DOMinputs.input.value);
-			view.data.totals,total = view.data.totals.total - parseInt(view.DOMinputs.input.value);
-		}
-model.data.totals.total
-		console.log(model.data.totals.inc)
-		console.log(model.data.totals.exp)
-		
+const controller = (function (mod, view) {
+	const DOM = view.getDOMstring();
+
+	const setupEventListeners = () =>{
+		document.querySelector('.btn').addEventListener('click', function () {
+			console.log('button is working')
+		})
+	
+		document.addEventListener('keypress', function (e) {
+			if (e.keyCode == 13 || e.which == 13) {
+				console.log('enter button is working')
+			}
+		})
 	}
+
+	
 
 	const update = () => {
 		DOMinputs.income_display.innerHTML = mod.data.totals.inc;
 		DOMinputs.expense_display.innerHTML = mod.data.totals.exp;
 		DOMinputs.totalMoney.innerHTML = mod.data.totals.total;
-		}
+	}
 
-	let ctrlAddItem = function(){
+	let ctrlAddItem = function () {
 		let input, newItem;
 
 		// 1. Get the field input data
-		
+		input = view.getInput();
 		// 2 Store inputs in item object
-
-		// 3. Save item in either inc or exp array in data
+		newItem = addItem(input.type, input.description, input.value)
 	}
 
 
-	view.DOMinputs.calcBtn.addEventListener('click', function () {
-		calc();
-		update();
-		
-		
-	})
+	
 
+	return {
+		init: function(){
+			setupEventListeners();
+			console.log('init is working')
+		}
+	}
 
-})(model,view);
+})(model, view);
 
+controller.init();
