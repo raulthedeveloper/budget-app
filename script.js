@@ -33,12 +33,18 @@ const model = (function () {
 		addItem: function (type, des, val) {
 			let newItem, ID;
 			//Create new ID
-			ID = data.allItems[type][data.allItems[type].length - 1] + 1;
+			if(data.allItems[type].length > 0){
+				ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+
+			}else{
+				ID = 0;
+
+			}
 
 			//Create conditional that seperates by type
-			if (type == inc) {
+			if (type == 'inc') {
 				newItem = new Income(ID, des, val);
-			} else if (type == exp) {
+			} else if (type == 'exp') {
 				newItem = new Expense(ID, des, val)
 			}
 
@@ -47,8 +53,9 @@ const model = (function () {
 			return newItem;
 
 		},
-
-		data:data
+		test:function(){
+			console.log(data);
+		}
 	}
 
 	
@@ -104,11 +111,22 @@ const view = (function (mod) {
 			return {
 				type: document.querySelector(DOMstrings.inputType).value,
 				description: document.querySelector(DOMstrings.inputDescription).value,
-				input: document.querySelector(DOMstrings.inputValue).value
+				value: document.querySelector(DOMstrings.inputValue).value
 			}
 		},
 		getDOMstring() {
 			return DOMstrings;
+		},
+		clearFields: function(){
+			let fields, fieldsArr;
+			fields =  document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
+			fieldsArr = Array.prototype.slice.call(fields);
+
+			fieldsArr.forEach(function(current,index,array){
+				current.value = '';
+			})
+
+			fieldsArr[0].focus();
 		}
 
 	}
@@ -125,24 +143,16 @@ const controller = (function (mod, view) {
 	const DOM = view.getDOMstring();
 
 	const setupEventListeners = () =>{
-		document.querySelector('.btn').addEventListener('click', function () {
-			console.log('button is working')
-		})
+		document.querySelector('.btn').addEventListener('click', ctrlAddItem)
 	
 		document.addEventListener('keypress', function (e) {
 			if (e.keyCode == 13 || e.which == 13) {
-				console.log('enter button is working')
+				ctrlAddItem();
 			}
 		})
 	}
 
 	
-
-	const update = () => {
-		DOMinputs.income_display.innerHTML = mod.data.totals.inc;
-		DOMinputs.expense_display.innerHTML = mod.data.totals.exp;
-		DOMinputs.totalMoney.innerHTML = mod.data.totals.total;
-	}
 
 	let ctrlAddItem = function () {
 		let input, newItem;
@@ -150,7 +160,9 @@ const controller = (function (mod, view) {
 		// 1. Get the field input data
 		input = view.getInput();
 		// 2 Store inputs in item object
-		newItem = addItem(input.type, input.description, input.value)
+		newItem = model.addItem(input.type, input.description, input.value)
+		// 3. Clear fields
+		view.clearFields();
 	}
 
 
