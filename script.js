@@ -70,7 +70,9 @@ const view = (function (mod) {
 		inputType: '#add_type',
 		inputDescription: '.input_description',
 		inputValue: '.input_value',
-		inputBtn: '.btn'
+		inputBtn: '.btn',
+		incomeContainer:'.income_container',
+		expenseContainer:'.expense_container'
 	}
 
 	const DOMinputs = {
@@ -127,8 +129,29 @@ const view = (function (mod) {
 			})
 
 			fieldsArr[0].focus();
-		}
+		}, 
+		addListItem: function(obj,type){
+			let html, newhtml,element;
+			console.log(obj)
 
+			//create html element and inject data from object based on type
+			if(type == 'inc'){
+				element = DOMstrings.incomeContainer;
+				html = '<div id="income_list"><div id="income-%id%" class="item"><div class="item__description text-light">%description%</div><div class="right clearfix"><div class="item__value">$%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div> </div>';
+				
+
+			}else if(type == 'exp'){
+				element = DOMstrings.expenseContainer;
+				html = '<div id="expense_list"><div id="expense-%id%" class="item"><div class="item__description text-light">"%description%"</div><div class="right clearfix"><div class="item__value text-danger">- $%value%</div><div class="item__percentage">10%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div></div>';
+			}
+
+			newhtml = html.replace('%id%',obj.id);
+			newhtml = newhtml.replace('%description%',obj.description);
+			newhtml = newhtml.replace('%value%',obj.value);
+
+			document.querySelector(element).insertAdjacentHTML('beforeend',newhtml)
+		}
+		
 	}
 
 })();
@@ -163,6 +186,8 @@ const controller = (function (mod, view) {
 		newItem = model.addItem(input.type, input.description, input.value)
 		// 3. Clear fields
 		view.clearFields();
+		// 4. Add Item to DOM
+		view.addListItem(newItem,input.type);
 	}
 
 
