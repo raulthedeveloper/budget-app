@@ -20,13 +20,31 @@ const model = (function () {
 		totals: {
 			inc: 0,
 			exp: 0,
-			total: 0
 		},
 		budget: 0,
 		percentage: -1
 
 
 	}
+
+	var calculateTotal = function(type) {
+		var sum = 0;
+		if(type == 'inc'){
+			data.allItems[type].forEach(function(cur) {
+				sum += parseInt(cur.value);
+			});
+		}else if(type == 'exp'){
+			data.allItems[type].forEach(function(cur) {
+				sum -= parseInt(cur.value);
+			});
+		}
+        
+		data.totals[type] = sum;
+		console.log(sum)
+	};
+	
+	
+
 
 
 	return {
@@ -53,8 +71,31 @@ const model = (function () {
 			return newItem;
 
 		},
+
+		calculateBudget: function(){
+			calculateTotal('inc');
+			calculateTotal('exp');
+
+			data.budget = data.totals.inc + data.totals.exp;
+
+
+
+		},
+
+		getBudget:function(){
+			return {
+				total:data.budget,
+				totalInc:data.totals.inc,
+				totalExp:data.totals.exp
+			}
+		},
+
+
+
 		test:function(){
-			console.log(data);
+			console.log( data.totals['inc'])
+
+			
 		}
 	}
 
@@ -111,9 +152,12 @@ const view = (function (mod) {
 	return {
 		getInput: function () {
 			return {
+				totalMoney: document.querySelector('#total_money'),
 				type: document.querySelector(DOMstrings.inputType).value,
 				description: document.querySelector(DOMstrings.inputDescription).value,
-				value: document.querySelector(DOMstrings.inputValue).value
+				value: document.querySelector(DOMstrings.inputValue).value,
+				income_display: document.querySelector('#income_display'),
+		        expense_display: document.querySelector('#expense_display')
 			}
 		},
 		getDOMstring() {
@@ -142,7 +186,7 @@ const view = (function (mod) {
 
 			}else if(type == 'exp'){
 				element = DOMstrings.expenseContainer;
-				html = '<div id="expense_list"><div id="expense-%id%" class="item"><div class="item__description text-light">"%description%"</div><div class="right clearfix"><div class="item__value text-danger">- $%value%</div><div class="item__percentage">10%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div></div>';
+				html = '<div id="expense_list"><div id="expense-%id%" class="item"><div class="item__description text-light">%description%</div><div class="right clearfix"><div class="item__value text-danger">- $%value%</div><div class="item__percentage">10%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div></div>';
 			}
 
 			newhtml = html.replace('%id%',obj.id);
@@ -151,6 +195,7 @@ const view = (function (mod) {
 
 			document.querySelector(element).insertAdjacentHTML('beforeend',newhtml)
 		}
+		
 		
 	}
 
@@ -179,6 +224,7 @@ const controller = (function (mod, view) {
 
 	let ctrlAddItem = function () {
 		let input, newItem;
+		sanitizeInput();
 
 		// 1. Get the field input data
 		input = view.getInput();
@@ -188,6 +234,33 @@ const controller = (function (mod, view) {
 		view.clearFields();
 		// 4. Add Item to DOM
 		view.addListItem(newItem,input.type);
+		displayBudget();
+		
+	}
+
+	let displayBudget = function(){
+		mod.calculateBudget();
+		let budget = mod.getBudget();
+		let display = view.getInput();
+		// document.querySelector('#income_display').innerHTML = budget.totalInc;
+		display.expense_display.innerHTML = budget.totalExp;
+		display.income_display.innerHTML = budget.totalInc;
+
+		display.totalMoney.innerHTML = budget.total;
+	
+	}
+
+	const sanitizeInput = () =>{
+		let inputs = view.getInput();
+	
+		if(inputs.description == ''){
+			inputs.description = "Default";
+			console.log('description is working')
+		}
+		if(isNaN(inputs.value)){
+			inputs.value = 3;
+			console.log(inputs.value)
+		}
 	}
 
 
